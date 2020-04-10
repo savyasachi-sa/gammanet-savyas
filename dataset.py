@@ -7,6 +7,7 @@ import imageio
 import gzip
 import random
 
+
 # NOTE: don't transfer data to CUDA in dataset (if we need to, use memory pinning)
 
 
@@ -63,7 +64,7 @@ class SimpleDataset(torch.utils.data.Dataset):
         """
         Returns images and optionally labels at index
         """
-        
+
         if self.use_cache and index in self.cache_dict:
             return self.cache_dict[index]
 
@@ -75,7 +76,7 @@ class SimpleDataset(torch.utils.data.Dataset):
                 x = self._load_numpy(x)
             elif ".pkl" in x:  # pickle file, assume ndarray
                 x = self._load_pickle(x)
-            else:            # assume file in image format
+            else:  # assume file in image format
                 x = np.array(imageio.imread(x))
         if self.x_transform is not None:
             x = self.x_transform(x)
@@ -89,12 +90,12 @@ class SimpleDataset(torch.utils.data.Dataset):
                     y = self._load_numpy(y)
                 elif ".pkl" in y:  # pickle file, assume ndarray
                     y = self._load_pickle(y)
-                else:            # assume file in image format
+                else:  # assume file in image format
                     y = np.array(imageio.imread(y))
             if self.y_transform is not None:
                 y = self.y_transform(y)
             if self.use_cache:
-                self.cache_dict[index] = (x,y)
+                self.cache_dict[index] = (x, y)
             return x, y
         else:
             if self.use_cache:
@@ -119,4 +120,4 @@ class SimpleDataset(torch.utils.data.Dataset):
         f = gzip.open(path) if path.endswith(".gz") else open(path, 'rb')
         ret = pickle.load(f)
         assert isinstance(ret, np.ndarray), "Expected numpy.ndarray"
-        return ret            
+        return ret

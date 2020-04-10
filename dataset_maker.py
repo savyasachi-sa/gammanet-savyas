@@ -22,7 +22,7 @@ def txt2npy(in_file, out_file):
 def npy2txt(in_file, out_path, txt_fname="arr.txt", sample_prefix="data"):
     """ read a dataset in npy format, and split it to one file for each sample """
     arr = np.load(in_file)
-    num_length = np.ceil(np.log10(arr.shape[0]+1))
+    num_length = np.ceil(np.log10(arr.shape[0] + 1))
     if not os.path.exists(out_path):
         os.makedirs(out_path)
     fnames = []
@@ -64,7 +64,7 @@ def convert_acdc_dataset(data_root, out_root, load_labels=True, val_ratio=None):
                 patient_path, frame_file)).get_fdata()
             for i in range(frame.shape[2]):
                 image_file = frame_file.split(
-                    '.')[0] + "_slice{}.npy".format(i+1)
+                    '.')[0] + "_slice{}.npy".format(i + 1)
                 image_path = os.path.join(patient_path_out, image_file)
                 x_arr_p += [image_path + '\n']
                 np.save(image_path, frame[:, :, i])
@@ -76,7 +76,7 @@ def convert_acdc_dataset(data_root, out_root, load_labels=True, val_ratio=None):
                     patient_path, truth_file)).get_fdata()
                 for i in range(truth.shape[2]):
                     label_file = truth_file.split(
-                        '.')[0] + "_slice{}.npy".format(i+1)
+                        '.')[0] + "_slice{}.npy".format(i + 1)
                     label_path = os.path.join(patient_path_out, label_file)
                     y_arr_p += [label_path + '\n']
                     np.save(label_path, truth[:, :, i])
@@ -142,12 +142,12 @@ def convert_acdc_dataset_timeseries(data_root, out_root, num_frames=4, load_labe
         # save each slice to npy
         for i in range(x_data.shape[2]):
             ts_file = "{}_frame{:02d}-{:02d}_slice{:02d}.npy".format(
-                patient, ed_frame+num_frames-1, ed_frame, i+1)
+                patient, ed_frame + num_frames - 1, ed_frame, i + 1)
             ts_path = os.path.join(patient_path_out, ts_file)
             x_arr_p += [ts_path + '\n']
-            ed_flip_idx = x_data.shape[3]-(ed_frame-1)
+            ed_flip_idx = x_data.shape[3] - (ed_frame - 1)
             np.save(ts_path, np.flip(x_data, axis=-1)
-                    [:, :, i, ed_flip_idx-num_frames:ed_flip_idx])
+            [:, :, i, ed_flip_idx - num_frames:ed_flip_idx])
         # save each slice's label to npy
         if load_labels:
             truth_file = "{}_frame{:02d}_gt.nii.gz".format(patient, ed_frame)
@@ -155,7 +155,7 @@ def convert_acdc_dataset_timeseries(data_root, out_root, num_frames=4, load_labe
                 patient_path, truth_file)).get_fdata()
             for i in range(truth.shape[2]):
                 label_file = truth_file.split(
-                    '.')[0] + "_slice{:02d}.npy".format(i+1)
+                    '.')[0] + "_slice{:02d}.npy".format(i + 1)
                 label_path = os.path.join(patient_path_out, label_file)
                 y_arr_p += [label_path + '\n']
                 np.save(label_path, truth[:, :, i])
@@ -164,10 +164,10 @@ def convert_acdc_dataset_timeseries(data_root, out_root, num_frames=4, load_labe
         # save each slice to npy
         for i in range(x_data.shape[2]):
             ts_file = "{}_frame{:02d}-{:02d}_slice{:02d}.npy".format(
-                patient, es_frame-num_frames+1, es_frame, i+1)
+                patient, es_frame - num_frames + 1, es_frame, i + 1)
             ts_path = os.path.join(patient_path_out, ts_file)
             x_arr_p += [ts_path + '\n']
-            np.save(ts_path, x_data[:, :, i, es_frame-num_frames:es_frame])
+            np.save(ts_path, x_data[:, :, i, es_frame - num_frames:es_frame])
         # save each slice's label to npy
         if load_labels:
             truth_file = "{}_frame{:02d}_gt.nii.gz".format(patient, es_frame)
@@ -175,7 +175,7 @@ def convert_acdc_dataset_timeseries(data_root, out_root, num_frames=4, load_labe
                 patient_path, truth_file)).get_fdata()
             for i in range(truth.shape[2]):
                 label_file = truth_file.split(
-                    '.')[0] + "_slice{:02d}.npy".format(i+1)
+                    '.')[0] + "_slice{:02d}.npy".format(i + 1)
                 label_path = os.path.join(patient_path_out, label_file)
                 y_arr_p += [label_path + '\n']
                 np.save(label_path, truth[:, :, i])
@@ -207,7 +207,6 @@ def convert_acdc_dataset_timeseries(data_root, out_root, num_frames=4, load_labe
 
 
 def convert_bsds500_dataset(data_root='data', save_root='data_p'):
-
     x_names = {}
     x_names['train'] = [f[:-4] for f in os.listdir(os.path.join(data_root, "images/train"))
                         if f.endswith(".jpg")]
@@ -234,7 +233,6 @@ def convert_bsds500_dataset(data_root='data', save_root='data_p'):
 
             # save each label to individual file
             for i in range(y['groundTruth'].shape[1]):
-
                 # duplicate image file entries
                 x_fname = os.path.join(
                     save_root, "images/{}".format(s), "{}.jpg".format(x_name))
