@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: POD_NAME
+  namespace: mas-medical
+spec:
+  containers:
+  - name: POD_NAME
+    image: greencodes/torch-jupyter:latest
+    imagePullPolicy: Always
+    resources:
+      limits:
+        memory: "4G"
+        cpu: 2
+        nvidia.com/gpu: 1
+      requests:
+        memory: "2G"
+        cpu: 2
+        nvidia.com/gpu: 1
+    volumeMounts:
+      - mountPath: "/ceph"
+        name: mas-medical-cephfs
+  restartPolicy: Never
+  volumes:
+    - name: mas-medical-cephfs
+      persistentVolumeClaim:
+        claimName: mas-medical-cephfs

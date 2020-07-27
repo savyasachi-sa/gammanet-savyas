@@ -1,0 +1,31 @@
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: POD_NAME
+  namespace: mas-medical
+spec:
+  template:
+    spec:
+      containers:
+      - name: POD_NAME
+        imagePullPolicy: Always
+        image: greencodes/torch-jupyter:latest
+        command: ["bash", "/ceph/run_exp.sh", "EXP_NAME", "INSTANCE_NAME"]
+        resources:
+          limits:
+            memory: "6G"
+            nvidia.com/gpu: 1
+            cpu: 4
+          requests:
+            memory: "4G"
+            cpu: 2
+            nvidia.com/gpu: 1
+        volumeMounts:
+          - name: mas-medical-cephfs
+            mountPath: "/ceph"
+      volumes:
+        - name: mas-medical-cephfs
+          persistentVolumeClaim:
+            claimName: mas-medical-cephfs
+      restartPolicy: Never
+  backoffLimit: 1

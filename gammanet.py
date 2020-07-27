@@ -284,3 +284,59 @@ class GammaNet(nn.Module):
                 block["{}_do{}".format(name, i)] = nn.Dropout(dropout_p)
             block["{}_relu{}".format(name, i)] = nn.ReLU()
         return nn.Sequential(block)
+
+
+class EnsembleGammaNet(nn.Module):
+    def __init__(self, ed, es):
+        super(EnsembleGammaNet, self).__init__()
+        self.ed = ed
+        self.es = es
+
+    def forward(self, x, frame_types):
+        ed_count, es_count = sum(frame_types).int().item(), sum(~frame_types).int().item()
+
+        if ed_count == 0:
+            return self.es(x)
+        elif es_count == 0:
+            return self.ed(x)
+
+        shape = x.shape
+        x_ed, x_es = self.__split(x, frame_types)
+        y_ed = self.ed(x_ed)
+        y_es = self.es(x_es)
+
+        return self.__merge(y_ed, y_es, frame_types, shape)
+
+    @staticmethod
+    def __split(x, frame_types):
+        return x[frame_types], x[~frame_types]
+
+    @staticmethod
+    def __merge(y_ed, y_es, frame_types, shape):
+        out = torch.empty(shape).cuda()
+        out[frame_types] = y_ed
+        out[~frame_types] = y_es
+        return out
+
+
+def build_gamma_net(config_data):
+    gammanet_config = GammaNet._get_default_config()
+    gammanet_config["input_timeseries"] = config_data['model']['timeseries']
+    gammanet_config["fgru_timesteps"] = config_data['model']['fgru_timesteps']
+    model = nn.Sequential(
+        GammaNet(gammanet_config),
+        nn.ReLU(),
+        nn.BatchNorm2d(24, eps=1e-3),
+        nn.Conv2d(24, 1, 5, padding=2),  # Change the expected number of output classes!
+    )
+    return model
+
+
+def get_model(config_data):
+    ensemble = config_data['model']['ensemble']
+    if not ensemble:
+        return build_gamma_net(config_data)
+    else:
+        ed_model = build_gamma_net(config_data)
+        es_model = build_gamma_net(config_data)
+        return EnsembleGammaNet(ed_model, es_model)
